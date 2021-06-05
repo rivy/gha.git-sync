@@ -38,7 +38,14 @@ fi
 git remote add destination "$DESTINATION_REPO"
 
 # Pull all branches references down locally so subsequent commands can see them
-git fetch source '+refs/heads/*:refs/heads/*' --update-head-ok
+if [[ -n "$UPDATE_HEAD" && "$UPDATE_HEAD" = true ]]; then
+  git fetch source '+refs/heads/*:refs/heads/*' --update-head-ok
+else
+  git checkout --detach # enter detached HEAD state to avoid blocking fetch to current branch
+  # ref: <https://www.spinics.net/lists/git/msg367554.html> @@ <https://archive.is/2qylA>
+  git fetch source '+refs/heads/*:refs/heads/*'
+  git remote set-head source -d
+fi
 
 # Print out all branches
 git --no-pager branch -a -vv
